@@ -12,6 +12,10 @@
             --accent: #ffffff;
         }
 
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
             background: #050505;
@@ -27,24 +31,28 @@
         .main-card {
             text-align: center;
             z-index: 10;
+            padding: 20px;
+            max-width: 500px;
         }
 
         h1 {
             font-family: 'Orbitron', sans-serif;
-            font-size: 2.5rem;
+            font-size: clamp(1.8rem, 5vw, 2.5rem);
             letter-spacing: 4px;
             margin: 0;
             background: linear-gradient(to bottom, #fff, var(--gold));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .age-tag {
             font-family: 'Orbitron', sans-serif;
             color: var(--gold);
-            font-size: 1.2rem;
+            font-size: clamp(1rem, 3vw, 1.2rem);
             margin-top: 10px;
             text-transform: uppercase;
+            letter-spacing: 2px;
         }
 
         /* The Gift Mechanic */
@@ -54,6 +62,21 @@
             height: 220px;
             margin: 60px auto;
             cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .box-wrapper:hover {
+            transform: scale(1.05);
+        }
+
+        .box-wrapper:hover .box-base {
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.4);
+        }
+
+        .box-wrapper:focus-visible {
+            outline: 2px solid var(--gold);
+            outline-offset: 8px;
+            border-radius: 4px;
         }
 
         .box-base {
@@ -65,6 +88,7 @@
             border: 2px solid var(--gold);
             border-radius: 8px;
             box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+            transition: box-shadow 0.3s ease;
         }
 
         /* Ribbon */
@@ -88,6 +112,7 @@
             border-radius: 4px;
             z-index: 5;
             transition: 0.7s cubic-bezier(0.19, 1, 0.22, 1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
         }
 
         /* The Surprise Text */
@@ -100,14 +125,36 @@
             opacity: 0;
             transition: 0.8s ease;
             z-index: 2;
+            pointer-events: none;
         }
 
         .reveal-msg h2 {
             font-family: 'Orbitron', sans-serif;
             color: var(--gold);
-            font-size: 1.8rem;
-            margin: 0;
+            font-size: clamp(1.4rem, 4vw, 1.8rem);
+            margin: 0 0 10px 0;
             text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+            animation: slideIn 0.8s ease 0.2s forwards;
+            opacity: 0;
+        }
+
+        .reveal-msg p {
+            color: var(--accent);
+            font-size: clamp(0.9rem, 2vw, 1rem);
+            margin: 0;
+            animation: slideIn 0.8s ease 0.4s forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         /* Open State */
@@ -122,15 +169,79 @@
         }
 
         .confetti {
-            position: absolute;
+            position: fixed;
             width: 6px;
             height: 6px;
             background: var(--gold);
+            pointer-events: none;
             animation: fall 3s linear forwards;
         }
 
         @keyframes fall {
-            to { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+            to { 
+                transform: translateY(100vh) rotate(360deg); 
+                opacity: 0; 
+            }
+        }
+
+        .instruction {
+            color: #666;
+            font-size: clamp(0.85rem, 2vw, 0.9rem);
+            margin-top: 30px;
+            transition: color 0.3s ease;
+        }
+
+        .box-wrapper:hover ~ .instruction,
+        .box-wrapper:focus-visible ~ .instruction {
+            color: var(--gold);
+        }
+
+        .reset-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: transparent;
+            border: 2px solid var(--gold);
+            color: var(--gold);
+            font-family: 'Poppins', sans-serif;
+            font-size: 0.9rem;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .reset-btn:hover {
+            background: var(--gold);
+            color: #050505;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .reset-btn.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        @media (max-width: 480px) {
+            .box-wrapper {
+                width: 180px;
+                height: 180px;
+            }
+
+            .box-base {
+                height: 130px;
+            }
+
+            .box-lid {
+                width: 190px;
+                height: 35px;
+            }
+
+            .reveal-msg {
+                width: 260px;
+            }
         }
     </style>
 </head>
@@ -140,7 +251,7 @@
         <h1>MUKISA DIVINE ADRIEL</h1>
         <div class="age-tag">Level 16 Unlocked</div>
 
-        <div class="box-wrapper" id="giftBox" onclick="openSurprise()">
+        <div class="box-wrapper" id="giftBox" role="button" tabindex="0" aria-label="Click to open birthday gift and reveal surprise">
             <div class="reveal-msg">
                 <h2>HAPPY 16TH BIRTHDAY!</h2>
                 <p>Welcome to Chapter 16. <br> Time to make history.</p>
@@ -149,28 +260,74 @@
             <div class="box-base"></div>
         </div>
 
-        <p style="color: #444; font-size: 0.9rem;">Click the vault to reveal the surprise</p>
+        <p class="instruction">Click the vault to reveal the surprise</p>
+        <button class="reset-btn" id="resetBtn" aria-label="Click to close the gift and reset">Close & Reset</button>
     </div>
 
     <script>
+        const giftBox = document.getElementById('giftBox');
+        const resetBtn = document.getElementById('resetBtn');
+        let isOpen = false;
+
         function openSurprise() {
-            const box = document.getElementById('giftBox');
-            if (!box.classList.contains('open')) {
-                box.classList.add('open');
+            if (isOpen) return;
+            
+            isOpen = true;
+            giftBox.classList.add('open');
+            resetBtn.classList.add('show');
+            
+            createConfetti();
+        }
+
+        function resetSurprise() {
+            isOpen = false;
+            giftBox.classList.remove('open');
+            resetBtn.classList.remove('show');
+        }
+
+        function createConfetti() {
+            const colors = ['#FFD700', '#ffffff', '#B8860B'];
+            
+            for (let i = 0; i < 80; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-10px';
+                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                confetti.style.animationDelay = Math.random() * 0.5 + 's';
                 
-                // Create particles
-                for (let i = 0; i < 80; i++) {
-                    const c = document.createElement('div');
-                    c.className = 'confetti';
-                    c.style.left = Math.random() * 100 + 'vw';
-                    c.style.top = '-10px';
-                    c.style.backgroundColor = Math.random() > 0.5 ? '#FFD700' : '#ffffff';
-                    c.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                    document.body.appendChild(c);
-                    setTimeout(() => c.remove(), 4000);
-                }
+                document.body.appendChild(confetti);
+                
+                setTimeout(() => {
+                    if (confetti.parentNode) {
+                        confetti.remove();
+                    }
+                }, 5000);
             }
         }
+
+        // Event listeners
+        giftBox.addEventListener('click', openSurprise);
+        
+        giftBox.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openSurprise();
+            }
+        });
+
+        resetBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            resetSurprise();
+        });
+
+        resetBtn.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                resetSurprise();
+            }
+        });
     </script>
 </body>
 </html>
